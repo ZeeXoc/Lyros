@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import d3 from 'd3-3';
+console.log("react",d3,React);
 
 const config = {
     title: '算法可视化',
@@ -13,8 +14,8 @@ const colorRed = "#ff3d00";
 const COLOR_SELECTED = "#ff9100";
 const COLOR_DEFAULT = "#00897b";
 const colorGreen = "#00e676";
-const SPEED = 1;
-const SIZE = 100;
+const SPEED = 0;
+const SIZE = 100
 
 function getSortData(count=SIZE){
     let arr = [], i=0;

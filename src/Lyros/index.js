@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import cookie from 'react-cookies';
+import {Button} from 'antd';
 import {Interval2D} from "./offset";
 import {Header, Body, Footer, Title, DeleteButton} from "./display";
 
@@ -212,9 +213,9 @@ export class Container extends Component {
     render() {
         return (
             <>
-                <button onClick={()=>this.load('game/')}>game</button>
-                <button onClick={()=>this.load('text/')}>text</button>
-                <button onClick={()=>this.load('pageCount/')}>统计</button>
+                <Button type="primary" onClick={()=>this.load('game/')}>game</Button>
+                <Button type="primary" onClick={()=>this.load('text/')}>text</Button>
+                <Button type="primary" onClick={()=>this.load('pageCount/')}>统计</Button>
                 {Object.values(this.state.windows)}
             </>
         )
