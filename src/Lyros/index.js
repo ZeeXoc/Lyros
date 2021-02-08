@@ -184,12 +184,10 @@ export class Container extends Component {
             }
         })
         Os.cookie('appState', state);
-        console.log(state)
     }
 
     loadCookie(){
         let c= Os.cookie('appState');
-        let state={};
         if (!c) return null;
         for (let hash in c) {
             if(!c.hasOwnProperty(hash)) continue;

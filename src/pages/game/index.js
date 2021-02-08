@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {Container} from "../../Lyros";
 
 const config = {
     title: 'game',

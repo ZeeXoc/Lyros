@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import d3 from 'd3-3';
-console.log("react",d3,React);
 
 const config = {
     title: '算法可视化',
@@ -160,7 +159,7 @@ const SortalGorithm = {
     mergeSort: function* (data){
         let mergeRec = function*(arr){
             let length = arr.length;
-            if(length==1){
+            if(length===1){
                 return arr;
             }
             let mid = Math.floor(length/2),
@@ -284,9 +283,6 @@ const SortalGorithm = {
 };
 
 class SortGraph extends React.Component{
-    constructor(props){
-        super(props);
-    }
     render(){
         //svg宽高
         let paddingBottom = 30;
@@ -294,7 +290,7 @@ class SortGraph extends React.Component{
         let data = this.props.data;
         //求比例变换
         let dataV = data.map(v=>{return v.v});
-        let min = Math.min(...dataV);
+        //let min = Math.min(...dataV);
         let max = Math.max(...dataV);
         //console.log("render SortGraph",{max,min});
         let linear = d3.scale.linear().domain([0,max]).range([0,height-paddingBottom-10]);
