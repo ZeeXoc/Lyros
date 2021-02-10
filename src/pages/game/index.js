@@ -1,9 +1,12 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 
-const config = {
+export const TYPE = 'window'
+
+export const CONFIG = {
     title: 'game',
     draggable: true
 }
+
 class Game extends Component {
     constructor(props) {
         super(props);
@@ -12,11 +15,11 @@ class Game extends Component {
 
     render() {
         return (
-            <div style={{color: 'red'}}>
+            <div style={{ color: 'red' }}>
                 gjd
             </div>
         );
     }
 }
 
-export {Game as Component,config}
+export { Game as Component }

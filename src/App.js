@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 /*import {Offset} from './Lyrw/Lyrw'*/
-import './App.css';
+import './App.less';
 import {Container} from "./Lyros";
 
 class App extends Component {

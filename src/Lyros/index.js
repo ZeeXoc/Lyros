@@ -1,10 +1,10 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 import cookie from 'react-cookies';
-import {Button} from 'antd';
-import {Interval2D} from "./offset";
-import {Header, Body, Footer, Title, DeleteButton} from "./display";
+import { Button } from 'antd';
+import { Interval2D } from "./offset";
+import { Window } from "./display";
 
-class EventListener {
+export class EventListener {
     element;
 
     previousEvent;
@@ -43,94 +43,6 @@ class EventListener {
     }
 }
 
-const WINDOW_DEFAULT_CONFIG = {
-    title: 'window',
-    draggable: true
-}
-
-function Window(require) {
-    let config = require.config;
-    let WrappedComponent = require.Component;
-    return class extends Component {
-        //DOM element
-        ref;
-
-        config = {
-            ...Object.assign({}, WINDOW_DEFAULT_CONFIG, config),
-            hash: this.props.hash
-        }
-
-        #_interval;
-
-        interval(newInterval) {
-            if (!newInterval) return this.#_interval
-            this.#_interval.set(newInterval);
-            return this.#_interval;
-        }
-
-        setDrag() {
-            let pUl = Object.assign({}, {x: this.interval().ul.x, y: this.interval().ul.y});
-            let header = this.ref.querySelector('[w-type=\'header\']');
-            new EventListener(header, 'mousedown', (pE, cE) => {
-                pUl = Object.assign({}, {x: this.interval().ul.x, y: this.interval().ul.y});
-            })
-            new EventListener(header, 'drag', (pE, cE) => {
-                this.interval().translate({
-                    x: pUl.x + cE.x - pE.x,
-                    y: pUl.y + cE.y - pE.y
-                })
-            })
-            new EventListener(header, 'mouseup', (pE, cE) => {
-                pUl = Object.assign({}, {x: this.interval().ul.x, y: this.interval().ul.y});
-            })
-        }
-
-        constructor(props) {
-            super(props);
-            this.state = {
-                title: this.config.title,
-                style: {}
-            }
-        }
-
-        componentDidMount() {
-            //在此声明防止interval提前与offset绑定
-            this.#_interval = new Interval2D(null, {
-                limit: document.getElementsByTagName('body')[0],
-                onChange: interval => this.setState({style: {...interval.toOffset()}})
-            });
-            this.interval(Interval2D.toInterval2D(this.ref))
-            if (this.config.draggable) this.setDrag();
-            this.props.action({
-                interval: newInterval => this.interval(newInterval),
-                temp: 'temp'
-            })
-        }
-
-
-        render() {
-            return (
-                <div
-                    className='app-window'
-                    id={'app-window-'+this.config.title}
-                    style={this.state.style}
-                    ref={ref => this.ref = ref}>
-                    <Header>
-                        <Title>{this.state.title}</Title>
-                        <DeleteButton delete={() => this.props.delete(this.config.hash)}/>
-                    </Header>
-                    <Body>
-                        <WrappedComponent/>
-                    </Body>
-                    <Footer/>
-                </div>
-            )
-        }
-    }
-
-}
-
-
 export class Container extends Component {
     windows = {
         0: {
@@ -141,17 +53,16 @@ export class Container extends Component {
         urlByHash: {},
         hashByUrl: {}
     }
-
-    load(url, isRewrite) {
-        let Win = Window(require('../pages/' + url));
+    loadWindow(url, require,isRewrite) {
+        let Win = Window(require);
         let hash = Os.hashCode(url);
         let action;
         this.setState(state => {
             if (isRewrite || !state.windows[hash]) {
                 state.windows[hash] =
                     <Win hash={hash} key={hash}
-                         action={act => action = act}
-                         delete={this.delete.bind(this)}/>
+                        action={act => action = act}
+                        delete={this.delete.bind(this)} />
             }
             return state
         }, () => {
@@ -166,6 +77,17 @@ export class Container extends Component {
         return hash
     }
 
+    loadIcon(url, require) { }
+
+    load(url, isRewrite) {
+        let req = require('../pages/' + url);
+        switch (req.TYPE) {
+            case 'window':
+                this.loadWindow(url, req,isRewrite);
+            case 'icon':
+                this.loadIcon(url, req,isRewrite);
+        }
+    }
     delete(hash) {
         this.setState(state => {
             delete state.windows[hash];
@@ -173,24 +95,24 @@ export class Container extends Component {
             delete this.windows.urlByHash[hash];
             delete this.windows[hash];
             return state
-        },()=>this.saveCookie());
+        }, () => this.saveCookie());
     }
 
     saveCookie() {
         let state = {};
-        Object.values(this.windows.hashByUrl).forEach(hash=>{
+        Object.values(this.windows.hashByUrl).forEach(hash => {
             state[hash] = {
-                url:this.windows[hash].url,
+                url: this.windows[hash].url,
             }
         })
         Os.cookie('appState', state);
     }
 
-    loadCookie(){
-        let c= Os.cookie('appState');
+    loadCookie() {
+        let c = Os.cookie('appState');
         if (!c) return null;
         for (let hash in c) {
-            if(!c.hasOwnProperty(hash)) continue;
+            if (!c.hasOwnProperty(hash)) continue;
             this.load(c[hash].url);
         }
     }
@@ -211,10 +133,11 @@ export class Container extends Component {
     render() {
         return (
             <>
-                <Button type="primary" onClick={()=>this.load('game/')}>game</Button>
-                <Button type="primary" onClick={()=>this.load('text/')}>text</Button>
-                <Button type="primary" onClick={()=>this.load('pageCount/')}>统计</Button>
+                <Button type="default" onClick={() => this.load('game/')}>game</Button>
+                <Button type="default" onClick={() => this.load('text/')}>text</Button>
+                <Button type="default" onClick={() => this.load('pageCount/')}>统计</Button>
                 {Object.values(this.state.windows)}
+                {Object.values(this.state.icons)}
             </>
         )
     }
@@ -230,10 +153,10 @@ export class Os {
 
     static cookie(name, state) {
         if (!name) return cookie.load(name)
-        if (!state) return  cookie.load(name)
+        if (!state) return cookie.load(name)
         cookie.save(name
             , state
-            , {expires: new Date(new Date().getTime() + 24 * 3600 * 1000 * 15)})//half month
+            , { expires: new Date(new Date().getTime() + 24 * 3600 * 1000 * 15) })//half month
     }
 
     static hashCode(string) {
