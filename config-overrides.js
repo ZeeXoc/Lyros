@@ -1,14 +1,19 @@
-const {override,fixBabelImports,addLessLoader} =require('customize-cra');
+const { override, fixBabelImports, addLessLoader } = require('customize-cra');
 module.exports = override(
-    fixBabelImports('import',{
-        libraryName:'antd',
-        libraryDirectory:'es',
-        style:true,
+    fixBabelImports('import', {
+        libraryName: 'antd',
+        libraryDirectory: 'es',
+        style: true
     }),
     addLessLoader({
-        lessOptions:{
-            javascriptEnabled:true ,
-            ModifyVars:{  '@primary-color':'#000'  } 
+        lessOptions: {
+            javascriptEnabled: true,
+            modifyVars: {
+                dark: true,
+                '@primary-color':   '#dddddd',
+                '@heading-color':   '#ffffff',
+                '@text-color'   :   '#000000'
+            }
         }
     })
 );

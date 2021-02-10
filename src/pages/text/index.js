@@ -1,10 +1,12 @@
 /**
- * Created by xing on 2017/5/17.
+ * Origin created by xing on 2017/5/17.
  */
 import React from 'react';
 import d3 from 'd3-3';
 
-const config = {
+export const TYPE = 'window';
+
+export const CONFIG = {
     title: '算法可视化',
     draggable: true
 }
@@ -323,4 +325,4 @@ class Bar extends React.Component{
     }
 }
 
-export {Sort as Component,config};
+export {Sort as Component};
