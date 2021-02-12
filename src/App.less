@@ -1,19 +1,13 @@
-:root {
-    --col-1: #000000;
-    --col-2: #ffffff;
-    --col-3: #000000;
-}
-
-body {
+@import './basic.less';
+#root {
     position: absolute;
     margin: 0;
     top: 0;
     left: 0;
     bottom: 0;
     right: 0;
-    background-color: var(--col-3) !important;
+    background-color: @background-color-base;
     overflow: hidden;
-
 }
 
 .app-window {
@@ -24,5 +18,6 @@ body {
     min-width: 8em;
     margin: 0;
     padding: 0;
-    border: var(--col-2) 2px solid;
+    border: @border-color-base 2px solid;
+    background-color: @background-color-base;
 }

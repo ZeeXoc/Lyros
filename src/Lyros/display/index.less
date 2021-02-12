@@ -1,14 +1,15 @@
+@import '/src/basic.less';
 .app-window > [w-type="header"] {
-    background-color: var(--col-2);
-    color: var(--col-1);
+    background-color: @border-color-base;
+    color: @background-color-base;
     user-select: none;
 }
 
 .app-window > [w-type="body"] {
     flex-grow: 1;
     margin: 0em;
-    background-color: var(--col-1);
-    color: var(--col-2);
+    background-color: @background-color-base;
+    color: @text-color;
     overflow: auto;
 }
 .app-window > [w-type="body"]::-webkit-scrollbar {
@@ -17,8 +18,8 @@
 
 .app-window > [w-type="footer"] {
     bottom: 0;
-    background-color: var(--col-2);
-    color: var(--col-1);
+    background-color: @border-color-base;
+    color: @border-color-base;
     user-select: none;
 }
 

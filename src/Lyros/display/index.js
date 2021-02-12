@@ -1,7 +1,8 @@
 import React,{Component} from 'react';
 import {EventListener} from '../index';
 import {Interval2D} from '../offset'
-import './index.css';
+import { Button } from 'antd';
+import './index.less';
 
 const WINDOW_DEFAULT_CONFIG = {
     title: 'window',
@@ -103,7 +104,7 @@ function Title(props) {
     return <span>{props.children}</span>;
 }
 function DeleteButton(props) {
-    return <button onClick={props.delete}>×</button>;
+    return <Button type="default" onClick={props.delete}>×</Button>;
 }
 function Body(props) {
     return (
