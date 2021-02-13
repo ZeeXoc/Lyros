@@ -7,8 +7,8 @@ module.exports = override(
     }),
     addLessLoader({
         lessOptions: {
-            javascriptEnabled: true,
-            modifyVars: {}
+            modifyVars: {},
+            javascriptEnabled: true
         }
     })
 );

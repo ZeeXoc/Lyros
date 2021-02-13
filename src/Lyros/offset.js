@@ -37,9 +37,9 @@ export class Point2D {
      */
     add(...points) {
         points.forEach(point => {
-            let {x, y} = Point2D.pure(point);
-            this.x += x || 0;
-            this.y += y || 0;
+            let { x, y } = Point2D.pure(point);
+            this.x += (x || 0);
+            this.y += (y || 0);
         })
         return this;
     }
@@ -49,7 +49,7 @@ export class Point2D {
      * @return {Point2D}
      */
     minus(point) {
-        let {x, y} = Point2D.pure(point);
+        let { x, y } = Point2D.pure(point);
         this.x -= x;
         this.y -= y;
         return this;
@@ -76,7 +76,7 @@ export class Point2D {
      * @return {string} - distance
      */
     distTo(point = [0, 0], e = 3) {
-        let {x, y} = Point2D.minus(Point2D.pure(this), Point2D.pure(point));
+        let { x, y } = Point2D.minus(Point2D.pure(this), Point2D.pure(point));
         return Math.sqrt(x * x + y * y).toFixed(e);
     }
 
@@ -84,7 +84,7 @@ export class Point2D {
      * @param {Point|null} point
      */
     set(point) {
-        let {x, y} = Point2D.pure(point);
+        let { x, y } = Point2D.pure(point);
         this.x = x;
         this.y = y;
         return this;
@@ -92,6 +92,10 @@ export class Point2D {
 
     toString() {
         return `(${this.x},${this.y})`;
+    }
+
+    static in(point, interval) {
+
     }
 
     /**
@@ -128,7 +132,7 @@ export class Point2D {
      * @return {string} - distance
      */
     static distance(leftPoint, rightPoint = [0, 0], e = 3) {
-        let {x, y} = Point2D.minus(Point2D.pure(leftPoint), Point2D.pure(rightPoint));
+        let { x, y } = Point2D.minus(leftPoint, rightPoint);
         return Math.sqrt(x * x + y * y).toFixed(e);
     }
 
@@ -144,12 +148,11 @@ export class Point2D {
      */
     static pure(point) {
         point = point || [null, null];
-        let p = {x: null, y: null};
-        if (point.x === 0 || point.x || point[0]) p.x = point.x;
-        if (point.y === 0 || point.y || point[1]) p.y = point.y;
-
-        if (typeof p.x != 'number' || isNaN(p.x)) p.x = null;
-        if (typeof p.y != 'number' || isNaN(p.x)) p.y = null;
+        let p = { x: null, y: null };
+        if (point.x === 0 || point[0] === 0) p.x = 0
+        else p.x = point.x || point[0] || null
+        if (point.y === 0 || point[1] === 0) p.y = 0
+        else p.y = point.y || point[1] || null
         return p;
     }
 
@@ -203,15 +206,6 @@ export class Interval2D {
     }
 
     onChange(interval) {
-        let limit = this.config.limit
-        if (limit) {
-            let ul = Point2D.minus(this.ul, limit.ul)
-            let lr = Point2D.minus(limit.lr, this.lr)
-            if (ul.x < 0) this.#_ul.x = limit.ul.x
-            if (ul.y < 0) this.#_ul.y = limit.ul.y
-            if (lr.x < 0) this.#_lr.x = limit.lr.x
-            if (lr.y < 0) this.#_lr.y = limit.lr.y
-        }
         this.config.onChange(this)
     };
 
@@ -228,46 +222,14 @@ export class Interval2D {
     }
 
     /**
-     * @param {Point} points
-     * @description 平移: ul.add(...point);lr.add(...point)
+     * @param {Point} point
+     * @description ul平移至point
      * @return {Interval2D}
      */
-    translate(points) {
-        let pUl = Point2D.pure(this.ul)
-        let pLr = Point2D.pure(this.lr)
-        let size = Point2D.minus(pLr, pUl);
-        let nUl =  Point2D.pure(points);
-        let nLr =  Point2D.pure(Point2D.minus(pLr, pUl).add(points));
-        if (this.config.limit) {
-            let limit =this.config.limit.tagName?Interval2D.toInterval2D(this.config.limit):this.config.limit;
-            let dUl = Point2D.minus(nUl, limit.ul)
-            let dLr = Point2D.minus(limit.lr, nLr)
-            if (dUl.x < 0) {
-                nUl.x = limit.ul.x;
-                nLr.x = limit.ul.x+size.x;
-            }
-            if (dLr.x < 0) {
-                nUl.x = limit.lr.x-size.x;
-                nLr.x = limit.lr.x;
-            }
-            if (dUl.y < 0) {
-                nUl.y = limit.ul.y;
-                nLr.y = limit.ul.y+size.y;
-            }
-            if (dLr.y < 0) {
-                nUl.y = limit.lr.y-size.y;
-                nLr.y = limit.lr.y;
-            }
-        }
-        this.#_ul.set(nUl)
-        this.#_lr.set(nLr)
-        this.onChange(this)
-        return this;
-    }
-
-    add(...points) {
-        this.ul.add(...points)
-        this.lr.add(...points)
+    translate(point) {
+        let ul = point
+        let lr = Point2D.minus(this.lr, this.ul).add(point)
+        this.set({ ul, lr })
         this.onChange(this)
         return this;
     }
@@ -285,7 +247,7 @@ export class Interval2D {
     }
 
     toOffset() {
-        let {ul, lr} = Interval2D.pure(this)
+        let { ul, lr } = this
         return {
             left: ul.x,
             top: ul.y,
@@ -321,10 +283,10 @@ export class Interval2D {
     }
 
     constructor(interval2D, config) {
-        let {ul, lr} = interval2D || [null, null];
+        let { ul, lr } = interval2D || [null, null];
         this.#_ul = new Point2D(ul);
         this.#_lr = new Point2D(lr);
-        this.set({ul, lr});
+        this.set({ ul, lr });
         Object.assign(this.config, config)
     }
 }

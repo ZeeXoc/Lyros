@@ -1,7 +1,6 @@
-import React,{Component} from 'react';
-import {EventListener} from '../index';
-import {Interval2D} from '../offset'
+import React, { Component } from 'react';
 import { Button } from 'antd';
+import { Os } from '../index'
 import './index.less';
 
 const WINDOW_DEFAULT_CONFIG = {
@@ -29,23 +28,33 @@ function Window(require) {
             return this.#_interval;
         }
 
-        setDrag() {
+        /*setDrag() {
             let pUl = Object.assign({}, { x: this.interval().ul.x, y: this.interval().ul.y });
-            let header = this.ref.querySelector('[w-type=\'header\']');
-            new EventListener(header, 'mousedown', (pE, cE) => {
+            let header = this.ref.querySelector('[w-type=\'header</ZoomBlock>\']');
+            let previousEvent, currentEvent;
+            let isMouseDown = false;
+            header.addEventListener('mousedown', e => {
                 pUl = Object.assign({}, { x: this.interval().ul.x, y: this.interval().ul.y });
+                previousEvent = e;
+                currentEvent = e;
+                isMouseDown = true;
             })
-            new EventListener(header, 'drag', (pE, cE) => {
-                this.interval().translate({
-                    x: pUl.x + cE.x - pE.x,
-                    y: pUl.y + cE.y - pE.y
-                })
+            document.addEventListener('mousemove', e => {
+                if (!isMouseDown) return
+                currentEvent = e;
+                this.interval().translate(Point2D.minus(currentEvent, previousEvent).add(pUl))
             })
-            new EventListener(header, 'mouseup', (pE, cE) => {
+            document.addEventListener('mouseup', e => {
                 pUl = Object.assign({}, { x: this.interval().ul.x, y: this.interval().ul.y });
+                isMouseDown = false;
             })
-        }
-
+        }*/
+        setDrag = () => Os.setDrag(
+            e => this.setState({ style: {...this.state.style,...e} }),
+            this.ref,
+            this.ref.querySelector('[w-type=\'header\']'),
+            document.getElementById('root')
+        )
         constructor(props) {
             super(props);
             this.state = {
@@ -55,17 +64,17 @@ function Window(require) {
         }
 
         componentDidMount() {
-            //在此声明防止interval提前与offset绑定
-            this.#_interval = new Interval2D(null, {
-                limit: document.getElementsByTagName('body')[0],
-                onChange: interval => this.setState({ style: { ...interval.toOffset() } })
-            });
-            this.interval(Interval2D.toInterval2D(this.ref))
-            if (this.config.draggable) this.setDrag();
-            this.props.action({
-                interval: newInterval => this.interval(newInterval),
-                temp: 'temp'
-            })
+            // //在此声明防止interval提前与offset绑定
+            // this.#_interval = new Interval2D(null, {
+            //     limit: document.getElementsByTagName('body')[0],
+            //     onChange: interval => this.setState({ style: { ...interval.toOffset() } })
+            // });
+            // this.interval(Interval2D.toInterval2D(this.ref))
+            // if (this.config.draggable) this.setDrag();
+            // this.props.action({
+            //     interval: newInterval => this.interval(newInterval),
+            // })
+            if (this.config.draggable) this.setDrag()
         }
 
 
@@ -83,7 +92,11 @@ function Window(require) {
                     <Body>
                         <WrappedComponent />
                     </Body>
-                    <Footer />
+                    <Footer >
+                        {/*<ZoomBlock e={this.ref} pStyle={style => style?
+                            this.setState({ style:{...this.state.style,...style}})
+                        :this.state.style} />*/}
+                    </Footer>
                 </div>
             )
         }
@@ -91,11 +104,11 @@ function Window(require) {
 
 }
 
-export {Window};
+export { Window };
 
 function Header(props) {
     return (<div
-        style={{...props.style}}
+        style={{ ...props.style }}
         w-type='header'>
         {props.children}
     </div>)
@@ -109,7 +122,7 @@ function DeleteButton(props) {
 function Body(props) {
     return (
         <div
-            style={{...props.style}}
+            style={{ ...props.style }}
             w-type='body'>
             {props.children}
         </div>
@@ -118,11 +131,31 @@ function Body(props) {
 
 function Footer(props) {
     return (<div
-        style={{...props.style}}
+        style={{ ...props.style }}
         w-type='footer'>
         <span>{props.title}</span>
         {props.children}
     </div>)
 }
 
-export {Header,Body,Footer,Title,DeleteButton};
+/*class ZoomBlock extends Component {
+    constructor(props){
+        super(props);
+        this.state={}
+    }
+    componentDidMount(){
+        Os.setDrag(e=>{
+            this.props.pStyle({
+                width:this.ref.offsetLeft+this.ref.offsetWidth,
+                height:this.ref.offsetTop+this.ref.offsetHeight
+            })
+            this.setState({style:e});
+        },this.ref,this.ref,this.props.e)
+    }
+    render() {
+        return (
+            <div style={this.state.style} ref={ref=>this.ref = ref}>
+                <span>dfasdfasdfedf</span>   </div>
+        )
+    }
+}*/

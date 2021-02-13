@@ -4,45 +4,6 @@ import { Button } from 'antd';
 import { Interval2D } from "./offset";
 import { Window } from "./display";
 
-export class EventListener {
-    element;
-
-    previousEvent;
-
-    currentEvent;
-
-    setDrag(element, listener) {
-        let isMouseDown = false;
-        element.addEventListener('mousedown', e => {
-            this.previousEvent = e;
-            this.currentEvent = e;
-            isMouseDown = true;
-        })
-        document.addEventListener('mousemove', e => {
-            if (!isMouseDown) return
-            this.currentEvent = e;
-            listener(this.previousEvent, this.currentEvent)
-        })
-        document.addEventListener('mouseup', e => {
-            isMouseDown = false;
-        })
-    }
-
-    constructor(element, type, listener) {
-        this.element = element;
-        switch (type) {
-            case 'drag': {
-                this.setDrag(element, listener)
-                break;
-            }
-            default: {
-                element.addEventListener(type, listener)
-            }
-        }
-
-    }
-}
-
 export class Container extends Component {
     windows = {
         0: {
@@ -53,7 +14,7 @@ export class Container extends Component {
         urlByHash: {},
         hashByUrl: {}
     }
-    loadWindow(url, require,isRewrite) {
+    loadWindow(url, require, isRewrite) {
         let Win = Window(require);
         let hash = Os.hashCode(url);
         let action;
@@ -83,9 +44,9 @@ export class Container extends Component {
         let req = require('../pages/' + url);
         switch (req.TYPE) {
             case 'window':
-                this.loadWindow(url, req,isRewrite);
+                this.loadWindow(url, req, isRewrite);
             case 'icon':
-                this.loadIcon(url, req,isRewrite);
+                this.loadIcon(url, req, isRewrite);
         }
     }
     delete(hash) {
@@ -147,8 +108,42 @@ export class Container extends Component {
 export class Os {
     element;
 
-    static addEventListener(element, type, listener) {
-        return new EventListener(element, type, listener)
+    static setDrag(action, element, handler = element, container = window) {
+        let isMouseDown = false;
+        let diffX, diffY;
+        handler.addEventListener('mousedown', (event = window.event) => {
+            isMouseDown = true;
+            diffX = event.clientX - element.offsetLeft;
+            diffY = event.clientY - element.offsetTop;
+            if (typeof handler.setCapture !== 'undefined') {
+                handler.setCapture();
+            }
+        })
+        document.addEventListener('mousemove', (event = window.event) => {
+            if (!isMouseDown) return;
+            let moveX = event.clientX - diffX;
+            let moveY = event.clientY - diffY;
+            
+            //顺序不可换：保持左、上在屏幕中
+            if (moveX > container.offsetLeft + container.offsetWidth - element.offsetWidth)
+                moveX = container.offsetLeft + container.offsetWidth - element.offsetWidth
+            if (moveX < container.offsetLeft)
+                moveX = container.offsetLeft
+            if (moveY > container.offsetTop + container.offsetHeight - element.offsetHeight)
+                moveY = container.offsetTop + container.offsetHeight - element.offsetHeight
+            if (moveY < container.offsetTop)
+                moveY = container.offsetTop
+            action({
+                left: moveX,
+                top: moveY
+            })
+        })
+        document.addEventListener('mouseup', () => {
+            isMouseDown = false;
+            if (typeof handler.releaseCapture != 'undefined') {
+                handler.releaseCapture();
+            }
+        })
     }
 
     static cookie(name, state) {
